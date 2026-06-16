@@ -1,0 +1,6 @@
+{
+  "name": "FederaMed AI",
+  "description": "Enterprise Federated Learning Platform for Healthcare Intelligence. Privacy-preserving collaboration for medical deep learning without sharing patient data.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

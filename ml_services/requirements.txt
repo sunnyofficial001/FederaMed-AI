@@ -1,0 +1,15 @@
+# @license
+# SPDX-License-Identifier: Apache-2.0
+
+torch>=2.1.0
+torchvision>=0.16.0
+opacus>=1.4.0
+flwr>=1.6.0
+mlflow>=2.10.0
+numpy>=1.24.0
+pandas>=1.5.0
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pg>=5.0
+ioredis>=1.0
+pydantic>=2.0
