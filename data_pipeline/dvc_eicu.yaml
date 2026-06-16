@@ -1,0 +1,40 @@
+stages:
+  ingest_eicu:
+    desc: Ingest raw eICU data from PhysioNet
+    deps:
+    - data_pipeline/ingestion/eicu_ingestor.py
+    outs:
+    - path: healthcare_datasets/eicu/raw
+      cache: true
+      persist: true
+    params:
+    - eicu.version
+    - eicu.hospital_filters
+    cmd: python data_pipeline/ingestion/eicu_ingestor.py --output healthcare_datasets/eicu/raw
+  validate_eicu:
+    desc: Validate eICU data quality and schema compliance
+    deps:
+    - data_pipeline/ingestion/eicu_ingestor.py
+    - data_pipeline/validation/schema_validator.py
+    - healthcare_datasets/eicu/raw
+    outs:
+    - path: healthcare_datasets/eicu/validated
+      cache: true
+    - path: healthcare_datasets/eicu/validation_report.json
+      cache: false
+    params:
+    - eicu.validation_thresholds
+    cmd: python data_pipeline/validation/schema_validator.py --input healthcare_datasets/eicu/raw
+      --output healthcare_datasets/eicu/validated
+  featurize_eicu:
+    desc: Generate clinical features from validated eICU data
+    deps:
+    - data_pipeline/features/clinical_feature_engineer.py
+    - healthcare_datasets/eicu/validated
+    outs:
+    - path: healthcare_datasets/eicu/features
+      cache: true
+    params:
+    - eicu.feature_config
+    cmd: python data_pipeline/features/clinical_feature_engineer.py --input healthcare_datasets/eicu/validated
+      --output healthcare_datasets/eicu/features

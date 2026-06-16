@@ -1,0 +1,19 @@
+dataset: MIMIC-IV
+version: 2.2
+source: https://physionet.org/content/mimiciv/2.2/
+ingested_at: 2026-06-16T13:29:20.313158
+patient_count: 5000
+total_records: 341914
+checksum: e7543326d03e313bfe53939f67ae0b1e8ec44562367d6feec911435f260e16e4
+config_hash: 020b72d25a1a6d52
+tables:
+  - patients: 5000 rows
+  - admissions: 11500 rows
+  - icustays: 3406 rows
+  - chartevents: 230000 rows
+  - labevents: 92000 rows
+  - d_labitems: 8 rows
+compliance:
+  hipaa_compliant: true
+  phi_removed: true
+  data_use_agreement: signed

@@ -1,0 +1,40 @@
+stages:
+  ingest_mimic_iv:
+    desc: Ingest raw MIMIC-IV data from PhysioNet
+    deps:
+    - data_pipeline/ingestion/mimic_iv_ingestor.py
+    outs:
+    - path: healthcare_datasets/mimic_iv/raw
+      cache: true
+      persist: true
+    params:
+    - mimic_iv.version
+    - mimic_iv.cohort_filters
+    cmd: python data_pipeline/ingestion/mimic_iv_ingestor.py --output healthcare_datasets/mimic_iv/raw
+  validate_mimic_iv:
+    desc: Validate MIMIC-IV data quality and schema compliance
+    deps:
+    - data_pipeline/ingestion/mimic_iv_ingestor.py
+    - data_pipeline/validation/schema_validator.py
+    - healthcare_datasets/mimic_iv/raw
+    outs:
+    - path: healthcare_datasets/mimic_iv/validated
+      cache: true
+    - path: healthcare_datasets/mimic_iv/validation_report.json
+      cache: false
+    params:
+    - mimic_iv.validation_thresholds
+    cmd: python data_pipeline/validation/schema_validator.py --input healthcare_datasets/mimic_iv/raw
+      --output healthcare_datasets/mimic_iv/validated
+  featurize_mimic_iv:
+    desc: Generate clinical features from validated MIMIC-IV data
+    deps:
+    - data_pipeline/features/clinical_feature_engineer.py
+    - healthcare_datasets/mimic_iv/validated
+    outs:
+    - path: healthcare_datasets/mimic_iv/features
+      cache: true
+    params:
+    - mimic_iv.feature_config
+    cmd: python data_pipeline/features/clinical_feature_engineer.py --input healthcare_datasets/mimic_iv/validated
+      --output healthcare_datasets/mimic_iv/features
