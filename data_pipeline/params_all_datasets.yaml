@@ -1,0 +1,75 @@
+mimic_iv:
+  version: '2.2'
+  cohort_filters:
+    min_age: 18
+    max_age: 90
+    icu_stay_min_hours: 24
+  validation_thresholds:
+    min_completeness: 0.95
+    max_missing_rate: 0.05
+    outlier_std_threshold: 4.0
+  feature_config:
+    vital_signs:
+    - heart_rate
+    - bp_sys
+    - bp_dia
+    - temp
+    - spo2
+    lab_values:
+    - creatinine
+    - bun
+    - lactate
+    - wbc
+    derived_features:
+    - sofa_score
+    - apsiii
+    - charlson_comorbidity
+eicu:
+  version: '2.0'
+  hospital_filters:
+    min_beds: 100
+    teaching_status: true
+  validation_thresholds:
+    min_completeness: 0.95
+    max_missing_rate: 0.05
+    outlier_std_threshold: 4.0
+  feature_config:
+    vital_signs:
+    - heart_rate
+    - bp_sys
+    - bp_dia
+    - temp
+    - spo2
+    lab_values:
+    - creatinine
+    - bun
+    - lactate
+    - wbc
+    derived_features:
+    - sofa_score
+    - apache_iv
+    - charlson_comorbidity
+chexpert:
+  version: '1.0'
+  split_ratios:
+    train: 0.7
+    val: 0.1
+    test: 0.2
+  validation_thresholds:
+    min_image_quality: 0.9
+    label_consistency_min: 0.85
+  preprocessing_config:
+    image_size:
+    - 224
+    - 224
+    normalize_mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    normalize_std:
+    - 0.229
+    - 0.224
+    - 0.225
+    augmentations:
+    - random_flip
+    - random_rotation

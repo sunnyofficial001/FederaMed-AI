@@ -1,0 +1,8 @@
+core:
+  remote: healthcare_storage
+remote:
+  healthcare_storage:
+    region: us-east-1
+    sse: AES256
+    url: s3://federamed-healthcare-datasets/datasets
+    versioning: true

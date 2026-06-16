@@ -1,0 +1,40 @@
+stages:
+  ingest_chexpert:
+    desc: Ingest raw CheXpert chest X-ray dataset
+    deps:
+    - data_pipeline/ingestion/chexpert_ingestor.py
+    outs:
+    - path: healthcare_datasets/chexpert/raw
+      cache: true
+      persist: true
+    params:
+    - chexpert.version
+    - chexpert.split_ratios
+    cmd: python data_pipeline/ingestion/chexpert_ingestor.py --output healthcare_datasets/chexpert/raw
+  validate_chexpert:
+    desc: Validate CheXpert image labels and metadata
+    deps:
+    - data_pipeline/ingestion/chexpert_ingestor.py
+    - data_pipeline/validation/image_validator.py
+    - healthcare_datasets/chexpert/raw
+    outs:
+    - path: healthcare_datasets/chexpert/validated
+      cache: true
+    - path: healthcare_datasets/chexpert/validation_report.json
+      cache: false
+    params:
+    - chexpert.validation_thresholds
+    cmd: python data_pipeline/validation/image_validator.py --input healthcare_datasets/chexpert/raw
+      --output healthcare_datasets/chexpert/validated
+  preprocess_chexpert:
+    desc: Preprocess CheXpert images (normalization, augmentation)
+    deps:
+    - data_pipeline/preprocessing/image_preprocessor.py
+    - healthcare_datasets/chexpert/validated
+    outs:
+    - path: healthcare_datasets/chexpert/preprocessed
+      cache: true
+    params:
+    - chexpert.preprocessing_config
+    cmd: python data_pipeline/preprocessing/image_preprocessor.py --input healthcare_datasets/chexpert/validated
+      --output healthcare_datasets/chexpert/preprocessed
