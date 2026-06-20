@@ -14,10 +14,11 @@ export default function AnalyticsPage() {
 
   if (!data) return <div className="page"><div className="page-title">Loading Analytics...</div></div>;
 
-  const demoData = [
-    { name: 'Female', value: 54708, color: '#ec4899' },
-    { name: 'Male',   value: 47055, color: '#3b82f6' }
-  ];
+  const genderData = data.gender_distribution?.map((d: any) => ({
+    name: d.name,
+    value: d.value,
+    color: d.name === 'Female' ? '#ec4899' : '#3b82f6'
+  })) || [];
 
   return (
     <div className="page">
@@ -64,8 +65,8 @@ export default function AnalyticsPage() {
             <Card title="Gender Profile" badge="Demographics" badgeColor="blue">
                <ResponsiveContainer width="100%" height={200}>
                 <PieChart>
-                  <Pie data={demoData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={5} dataKey="value">
-                    {demoData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  <Pie data={genderData} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={5} dataKey="value">
+                    {genderData.map((entry: any, index: number) => <Cell key={`cell-${index}`} fill={entry.color} />)}
                   </Pie>
                   <RechartsTooltip {...tooltipStyle} formatter={(v: number) => [v.toLocaleString(), 'Patients']} />
                 </PieChart>
