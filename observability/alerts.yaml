@@ -1,0 +1,38 @@
+groups:
+  - name: federamed-alerts
+    rules:
+      - alert: HighAPILatency
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="kubernetes-pods"}[5m])) by (le)) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API Latency detected"
+          description: "95th percentile latency is above 500ms for 5 minutes."
+
+      - alert: ModelTrainingFailure
+        expr: increase(ml_training_errors_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "ML Training Error Detected"
+          description: "A model training job has failed."
+
+      - alert: PrivacyBudgetExhausted
+        expr: ml_privacy_budget_remaining <= 0
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Privacy Budget Exhausted"
+          description: "No privacy budget remaining for federated learning rounds."
+
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) * 60 * 5 > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Pod CrashLooping"
+          description: "{{ $labels.pod }} is restarting frequently."

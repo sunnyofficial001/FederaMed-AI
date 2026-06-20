@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower-client
+  namespace: federamed-ai
+  labels:
+    app: flower-client
+spec:
+  replicas: 3 # Simulates 3 hospitals
+  selector:
+    matchLabels:
+      app: flower-client
+  template:
+    metadata:
+      labels:
+        app: flower-client
+        role: fl-worker
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8001"
+    spec:
+      containers:
+      - name: flower-client
+        image: federamed-ai/ml-service:latest # Reuses the ML image which now contains flower_client.py
+        imagePullPolicy: Always
+        command: ["python", "-m", "ml_services.flower_client"]
+        envFrom:
+        - configMapRef:
+            name: federamed-config
+        - secretRef:
+            name: federamed-secrets
+        env:
+        - name: HOSPITAL_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name # Unique ID per pod
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+            nvidia.com/gpu: "0" # Request GPU if available
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+            nvidia.com/gpu: "1"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import flwr; print('OK')"
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          capabilities:
+            drop: ["ALL"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower-client-service
+  namespace: federamed-ai
+spec:
+  clusterIP: None # Headless service for direct pod communication if needed
+  selector:
+    app: flower-client

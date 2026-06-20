@@ -1,3 +1,111 @@
-```
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Node
 node_modules/
-```
+npm-debug.log
+yarn-error.log
+
+# Next.js / React build output
+.next/
+out/
+
+# MLflow
+mlruns/
+!mlruns/README.md
+
+# Healthcare Datasets
+backend/data/processed/global_dataset.csv
+backend/data/processed/partitions/*.csv
+backend/data/processed/*.json
+
+# Large Model Files
+backend/models/saved/*.pkl
+backend/models/saved/*.skops
+backend/models/saved/*.ubj
+*.skops
+*.ubj
+*.pkl
+*.parquet
+*.pt
+*.pth
+*.h5
+*.onnx
+
+# Explicitly ignore raw datasets if present
+healthcare_datasets/mimic_iv/raw/
+healthcare_datasets/mimic_iv/features/
+healthcare_datasets/mimic_iv/validated/
+
+# Explicitly un-ignore sample data and READMEs
+!backend/data/processed/README.md
+!backend/data/processed/partitions/README.md
+!sample_data/

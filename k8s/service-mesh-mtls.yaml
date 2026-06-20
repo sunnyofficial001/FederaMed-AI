@@ -1,0 +1,36 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default-mtls
+  namespace: federamed-ai
+spec:
+  mtls:
+    mode: STRICT
+---
+apiVersion: security.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: disable-mtls-for-external
+  namespace: federamed-ai
+spec:
+  host: "*.amazonaws.com"
+  trafficPolicy:
+    tls:
+      mode: DISABLE
+---
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: require-jwt-for-ingress
+  namespace: federamed-ai
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  rules:
+  - from:
+    - source:
+        principals: ["cluster.local/ns/federamed-ai/sa/ingress-gateway"]
+    to:
+    - operation:
+        methods: ["GET", "POST"]

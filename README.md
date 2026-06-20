@@ -1,161 +1,189 @@
-# FederaMed AI (Clinical Federated Learning Platform)
+<div align="center">
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript-blue)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/Frontend-React_19-blue)](https://react.dev/)
-[![Express](https://img.shields.io/badge/Backend-Express-lightgrey)](https://expressjs.com/)
-[![Testing](https://img.shields.io/badge/Tests-Vitest-orange)](https://vitest.dev/)
-[![Database](https://img.shields.io/badge/Storage-PostgreSQL--Compat_&_Redis-blue)](https://www.postgresql.org/)
+# FederaMed AI 🏥
 
-FederaMed AI is an industry-grade, decentralized **Clinical Federated Learning & Privacy Preservation Platform** designed for deep multi-party medical collaborative analytics without raw patient data centralisation. The platform facilitates decentralized training across standard healthcare datasets (**MIMIC-IV EHR**, **CheXpert Chest Radiographs**, and **eICU Collaborative Database**) using state-of-the-art federated algorithms, differential privacy budgets, and cryptographic secure aggregation protocols.
+**Enterprise Federated Healthcare Intelligence Platform**
 
-Built for clinical compliance (HIPAA & GDPR), FederaMed AI incorporates an automated real-time statistical data drift engine (combining **Kolmogorov-Smirnov distance checks** and **Population Stability Indexes**) as well as a simulated **Adversarial Attack Lab** simulating Membership Inference and Model Inversion attempts against the global neural parameters.
+*Privacy-Preserving Hospital Readmission Prediction using Federated Learning, Differential Privacy, Explainable AI, and MLOps.*
+
+[![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
+[![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Flower](https://img.shields.io/badge/Flower_FL-FFA500?style=for-the-badge&logo=flower)](https://flower.dev/)
+[![MLflow](https://img.shields.io/badge/MLflow-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)](https://mlflow.org/)
+[![XGBoost](https://img.shields.io/badge/XGBoost-150458?style=for-the-badge&logo=xgboost)](https://xgboost.readthedocs.io/)
+[![Python 3.12](https://img.shields.io/badge/Python_3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+![FederaMed AI Executive Dashboard](assets/screenshots/executive.png)
+
+</div>
 
 ---
 
-## 🌌 System Architecture
+## 🌍 Why This Project Matters
 
-The platform runs a production-ready **Client-Server Coordinating Architecture** with simulated mTLS peer nodes. 
+**The Healthcare Data Silo Problem**  
+Modern machine learning requires massive amounts of diverse data to build robust, generalizable models. However, in healthcare, strict privacy regulations (HIPAA, GDPR) prevent hospitals from sharing raw patient records. This results in isolated "data silos," leading to biased, underperforming clinical models that fail to generalize across different demographics.
 
+**The FederaMed AI Solution**  
+FederaMed AI solves this using **Federated Learning**. Instead of moving sensitive patient data to a centralized server, the model is sent to the hospitals. The model trains locally on the hospital's private data, and only the mathematically aggregated, anonymized weight updates are shared globally. 
+
+By combining this with **Differential Privacy**, **MLOps Governance**, and **Explainable AI**, FederaMed provides a complete, recruiter-grade blueprint for secure, collaborative medical research at scale.
+
+---
+
+## 🚀 Enterprise Features
+
+- [x] **Federated Learning (Flower)**: Decentralized training using FedAvg and FedProx strategies across simulated non-IID hospital nodes.
+- [x] **Differential Privacy**: Mathematical guarantees preventing patient record extraction from gradient updates.
+- [x] **Explainable AI (SHAP)**: Global feature importance and localized Waterfall charts for clinical trust and interpretability.
+- [x] **MLflow Model Registry**: Automated experiment tracking, versioning, and environment reproducibility.
+- [x] **Healthcare Analytics**: Deep demographic and clinical insights derived from the Diabetes 130-US Hospitals dataset.
+- [x] **Governance Dashboard**: Immutable audit trails and compliance scoring for every deployed model.
+- [x] **Monitoring Dashboard**: Real-time infrastructure health and data drift (K-S statistic) detection.
+- [x] **Architecture Dashboard**: Interactive system topology and component relationship mapping.
+- [x] **Clinical Decision Support**: Live inference UI with real-time risk scoring and clinical recommendations.
+- [x] **Docker Deployment**: Fully containerized, reproducible microservices architecture.
+
+---
+
+## 📸 Screenshots Gallery
+
+| Dashboard | Preview |
+| :--- | :--- |
+| **Executive Summary** | <img src="assets/screenshots/executive.png" width="400"/> |
+| **FL Command Center** | <img src="assets/screenshots/fl_command.png" width="400"/> |
+| **Clinical Analytics** | <img src="assets/screenshots/analytics.png" width="400"/> |
+| **Explainability Center** | <img src="assets/screenshots/explainability.png" width="400"/> |
+| **Data Drift Monitoring** | <img src="assets/screenshots/monitoring.png" width="400"/> |
+| **AI Governance** | <img src="assets/screenshots/governance.png" width="400"/> |
+| **Clinical Support (Predict)** | <img src="assets/screenshots/predict.png" width="400"/> |
+| **System Architecture** | <img src="assets/screenshots/architecture.png" width="400"/> |
+
+---
+
+## 🏗️ Architecture
+
+FederaMed AI employs a modern, decoupled microservices architecture designed for scale, security, and real-time inference.
+
+```mermaid
+graph TD
+    Client[React 19 + Vite Frontend] -->|REST API| Gateway[FastAPI Backend Server]
+    
+    subgraph Core Backend Services
+        Gateway --> Predict[Inference Engine]
+        Gateway --> Monitor[Drift Monitor]
+        Gateway --> XAI[SHAP Explainer]
+    end
+    
+    subgraph MLOps & Governance
+        Gateway --> MLflow[(MLflow Registry)]
+        MLflow --> ModelStorage[Artifact Store]
+    end
+    
+    subgraph Federated Learning Topology
+        FLServer[Flower FL Server] -.->|Global Model Weights| Gateway
+        FLServer <-->|gRPC Protocol| HospA(Hospital A Client)
+        FLServer <-->|gRPC Protocol| HospB(Hospital B Client)
+        FLServer <-->|gRPC Protocol| HospC(Hospital C Client)
+        
+        HospA -->|Local Training| DataA[(Local DB)]
+        HospB -->|Local Training| DataB[(Local DB)]
+        HospC -->|Local Training| DataC[(Local DB)]
+    end
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│                      Coordinating Server (Registry)                     │
-│  ───────────┬────────────────────────────────────────────────────────  │
-│             │ (Global Consensus Weights)                               │
-│             ▼                                                          │
-│   ┌────────────────────────────────────────┐                           │
-│   │   DiagnosticNeuralNetwork (Backbone)   ├─┐                         │
-│   └────────────────────────────────────────┘ │                         │
-│     ▲                   ▲                    │ (Audit trail)           │
-│     │ (Aggregated       │ (Zero-sum masks)   ▼                         │
-│     │  gradients)       │                  ┌──────────────────────┐    │
-│     │                   │                  │   PostgreSQL Ledger  │    │
-│     │                   │                  └──────────────────────┘    │
-│     │                   │                                              │
-└─────┼───────────────────┼──────────────────────────────────────────────┘
-      │                   │
-  ┌───┴──────────┐   ┌────┴─────────┐
-  │  Hospital 1  │   │  Hospital 2  │    (Decentralized Collaborative Nodes)
-  │  (MIMIC-IV)  │   │   (eICU)     │
-  └──────────────┘   └──────────────┘
-```
-
-### Core Architecture Specifications:
-1. **Federated Optimization Engine**: Zero-leakage coordination supports standard `FedAvg`, `FedProx` (proximal constraint penalty L2), and `SCAFFOLD` (variance reduction control variate correction coefficients).
-2. **Privacy Preservation Engine**: Dynamic gradient clipping and Gaussian/Laplacian noise addition using standard **Rényi Differential Privacy (RDP) Accountants** validating exact operational budget expenditure bounds ($\varepsilon \le 2.5$).
-3. **Secure Multi-Party Aggregation**: Secure Aggregator generates mutually canceling, zero-sum mutual masks deterministically derived from cryptographically random pairwise seeds to mask localized weight coordinates.
-4. **Decentralized Statistical Ingestion**: Customized clinical preprocessing pipelines standardizing EHR logs, clinical time-series waveforms, and image histograms.
 
 ---
 
-## 🛠️ Technology Stack
+## 📊 Dataset & Setup
 
-* **Frontend Engine**: React 19, TypeScript, Tailwind CSS, Lucide Icons, and Recharts.
-* **Server Framework**: Node.js Express, TypeScript (TSX).
-* **Data Store Systems**: Simulated Durable PostgreSQL client and Redis Key-Value memory caches (disk-buffered).
-* **AI Core**: Advanced Mathematical Gradient Optimizers, Rényi Privacy Accountants, and Google Gemini API (Strategic Clinical Synthesis).
-* **Test Platform**: Vitest Unit & Integration framework achieving high coverage standards.
+Built utilizing the **Diabetes 130-US Hospitals Dataset** alongside support for **MIMIC-IV** and **eICU**.
 
----
+> [!WARNING]
+> **LARGE FILES EXCLUDED FROM GITHUB**
+> To comply with GitHub's 100 MB file size limits, the raw datasets, heavily processed partitions (e.g., `global_dataset.csv`, `Hospital_A.csv`), and large trained model binaries (in `mlruns/` and `backend/models/saved/`) are explicitly excluded from tracking. 
+> 
+> You must download the data and run the pipelines locally to generate them! We provide a `sample_data/` folder with tiny datasets for quick verification.
 
-## 🚀 Quick Start Guide
+### Data Setup Instructions
+1. Download the raw datasets from PhysioNet (MIMIC-IV, eICU).
+2. Place the raw files inside the corresponding `healthcare_datasets/<dataset_name>/raw/` folders.
+3. Run the data engineering scripts to process and partition the data:
+   ```bash
+   cd backend
+   python data/feature_engineering.py
+   python data/partitioning.py
+   ```
+4. The generated CSV partitions will be saved to `backend/data/processed/partitions/` and are ignored by Git.
 
-### Prerequisites
-* [Node.js](https://nodejs.org/) `>= 18.x`
-* [npm](https://www.npmjs.com/) `>= 9.x`
-
-### 1. Installation
-
-Clone and install all necessary dependencies locally:
+### Model Training Instructions
+Once the data is partitioned, you can initiate the federated training or centralized baseline training:
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/federamed-ai.git
-cd federamed-ai
+cd backend
+python models/train.py
+```
+This will train the models (XGBoost, LightGBM) and automatically log the large artifacts (`.skops`, `.pkl`) to the `mlruns/` directory using MLflow.
 
-# Install baseline dependencies
+---
+
+## 🔬 Technical Deep Dive
+
+### 1. Federated Learning Strategies
+We implement **FedProx** alongside standard **FedAvg**. FedProx introduces a proximal term to the local objective functions, severely limiting the impact of highly heterogeneous (non-IID) local data across hospitals, ensuring the global model converges smoothly.
+
+### 2. Differential Privacy
+Gradient updates sent from the hospital to the central server are clipped to a maximum norm and infused with Gaussian noise (`ε = 1.5`, `δ = 1e-5`). This guarantees that the presence or absence of a single patient's record cannot statistically alter the global model weights beyond a safe threshold.
+
+### 3. Clinical Explainability (XAI)
+We utilize **SHAP (SHapley Additive exPlanations)**. The frontend dynamically renders localized waterfall charts representing the exact percentage impact of individual patient features (e.g., number of inpatient visits) against the baseline population risk.
+
+### 4. Advanced ML Algorithms
+Models are built using **XGBoost** and **LightGBM**, which consistently outperform deep learning approaches on tabular clinical data while maintaining higher interpretability and faster convergence.
+
+---
+
+## ⚙️ MLOps
+
+FederaMed AI treats the machine learning lifecycle with the same rigor as traditional software engineering:
+*   **Experiment Tracking**: Every FL round, hyperparameter, and local/global metric is logged to SQLite via MLflow.
+*   **Model Registry**: Models are automatically versioned and transitioned through `Archived` → `Staging` → `Production` lifecycles based on rigorous evaluation criteria.
+*   **Governance**: The system maintains an immutable audit trail mapping back to HIPAA, GDPR, and ISO 27001 compliance standards.
+*   **Monitoring**: Continuous tracking of incoming data against the reference baseline using the Kolmogorov-Smirnov (K-S) statistic to detect concept and feature drift.
+
+---
+
+## 🛠️ Deployment
+
+### 1. Local Development (Conda + NPM)
+
+```bash
+# Backend Setup
+conda create -n fedmed python=3.12 -y
+conda activate fedmed
+cd backend
+pip install -r requirements.txt
+python models/train.py          # Generate MLflow artifacts
+python models/extract_stats.py  # Generate analytics data
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Frontend Setup (New Terminal)
+cd FederaMed-AI-main
 npm install
-```
-
-### 2. Configuration Setup
-Create a `.env` file in the root based on the example:
-```bash
-cp .env.example .env
-```
-Provide the `GEMINI_API_KEY` inside `.env` to enable AI-powered medical cohort reasoning and clinical insight generation.
-
-### 3. Run Development Server
-```bash
 npm run dev
 ```
-The dev server boots the full-stack system automatically on **Port 3000** (`http://localhost:3000`).
 
-### 4. Running the Test Suite
-The repository includes unit and integration tests executing Box-Muller transforms, Zero-Sum masking algorithms, and KS-drift metrics:
+### 2. Docker Deployment
+
 ```bash
-# Run tests synchronously
-npm run test
+# Build and run all microservices via Docker Compose
+docker-compose up --build -d
 ```
+*   Frontend available at: `http://localhost:5173`
+*   Backend API available at: `http://localhost:8000`
+*   API Docs (Swagger) available at: `http://localhost:8000/docs`
 
 ---
-
-## 📝 Comprehensive Directory Structure
-
-```filepath
-├── /tests/                      # Comprehensive Unit & Integration Test Suite
-│   ├── ml.test.ts              # Diagnostic neural weight optimization & DP tests
-│   ├── datasets.test.ts        # Data pipeline & Kolmogorov-Smirnov drift tests
-│   ├── db.test.ts              # PostgreSQL & Redis durable storage engine tests
-│   └── security.test.ts        # Membership Inference & Inversion attack tests
-├── /server/                     # Core Business Logic & Coordination Engines
-│   ├── db.ts                   # Simulated PostgreSQL ledger & Redis client
-│   ├── ml.ts                   # Diagnostic Neural Net, Secure Aggregator & DP Engine
-│   ├── datasets.ts             # Medical preprocessors & Drift distribution tests
-│   ├── security.ts             # Membership Inference & Poisoning simulators
-│   ├── registry.ts             # Atomic model lifecycle and rollback registry
-│   └── infra-blueprints.ts     # IaC Kubernetes, Helm & Terraform configuration output
-├── /src/                        # Frontend React Application Container
-│   ├── App.tsx                 # Core UI dashboard with telemetry visualisations
-│   ├── types.ts                # Strict TypeScript contracts for coordinating states
-│   └── index.css               # Global theme configuration & CSS styles
-├── server.ts                    # Main coordination entry point, handles express API routing
-├── package.json                 # Dependency manifests & executing scripts
-└── tsconfig.json                # Strict TypeScript configuration
-```
-
----
-
-## 🛑 Simulated Adversarial Laboratory
-
-The platform incorporates active security simulations to evaluate system-level defense effectiveness:
-
-| Attack Vector | Threat Model | private Mitigation | Defense Success Rate |
-| :--- | :--- | :--- | :--- |
-| **Membership Inference (MIA)** | Overfitting loss evaluation reveals patient participation. | Rényi DP flattens loss distributions. | **~96.5%** |
-| **Gradient Model Inversion** | Gradient backprop allows partial feature reconstruction. | Laplace noise perturbations scramble inversion converge. | **~87.6%** |
-| **Decentralized Label Poisoning** | Malicious peer nodes upload skewed label updates. | Robust pruning aggregates reject extreme outliers. | **~81.8%** |
-| **Trigger Backdoor Injection** | Watermarked datasets train neural network triggers. | mTLS key validation & zero-sum aggregates block injection. | ****~94.6%**** |
-
----
-
-## 📈 Platform Benchmarks & Metrics
-
-* **Communication Upload Cost**: DenseNet-121 core weight buffers bundle at **28.20 MB** per transport round. Under standard secure double masks (SecAgg), payload dimensions scale cleanly to **56.40 MB** with under **0.22 seconds** latency overhead on typical 1Gbps fiber.
-* **Accuracy Convergence**: SCAFFOLD gradient drift correction decreases global loss error to its local minima `0.184` within **12 aggregation rounds**, outperforming standard uncorrected `FedAvg` by an average accuracy threshold increase of **~7.8%**.
-
----
-
-## 🛣️ Development Roadmap
-
-* [x] Core Neural Weight Optimizer & Direct Backprop updates.
-* [x] Dynamic Rényi Differential Privacy Accountant bounds.
-* [x] Symmetric Pairwise Secure Aggregation Additive Masks.
-* [x] Decentralized Kolmogorov-Smirnov & PSI statistical drift engines.
-* [x] Interactive Adversarial Proving Ground (MIA, Model Inversion).
-* [ ] Multi-Host dockerised peer setups with true hardware separation.
-* [ ] Hardware-accelerated WASM training wrappers for client-side browsers.
-
----
-
-## 🛡️ License
-
-Distributed under the Apache 2.0 License. See `LICENSE` for more information.
+<div align="center">
+<i>FederaMed AI v2.0.0 — Engineered for the future of collaborative healthcare.</i>
+</div>

@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower-server
+  namespace: federamed-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flower-server
+  template:
+    metadata:
+      labels:
+        app: flower-server
+    spec:
+      containers:
+      - name: flower-server
+        image: federamed-ai/ml-service:latest # Ensure this image is built with the new Dockerfile
+        imagePullPolicy: Always
+        command: ["python", "-m", "ml_services.start_flower_server"]
+        ports:
+        - containerPort: 9092
+          name: grpc
+        envFrom:
+        - configMapRef:
+            name: federamed-config
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import socket; s=socket.socket(); s.connect(('localhost', 9092)); s.close()"
+          initialDelaySeconds: 30
+          periodSeconds: 20
+        readinessProbe:
+          exec:
+            command:
+            - python
+            - -c
+            - "import socket; s=socket.socket(); s.connect(('localhost', 9092)); s.close()"
+          initialDelaySeconds: 10
+          periodSeconds: 10

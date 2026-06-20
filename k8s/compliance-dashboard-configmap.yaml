@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-compliance-dashboard
+  namespace: federamed-ai
+data:
+  compliance-dashboard.json: |
+    {
+      "dashboard": {
+        "title": "FederaMed Compliance Monitor",
+        "panels": [
+          {
+            "title": "Failed Login Attempts",
+            "targets": [{"expr": "sum(rate(http_requests_total{status=\"401\", path=\"/api/auth/login\"}[5m]))"}]
+          },
+          {
+            "title": "Data Access Events",
+            "targets": [{"expr": "sum(rate(audit_events_total{type=\"DATA_ACCESS\"}[5m]))"}]
+          },
+          {
+            "title": "Model Downloads",
+            "targets": [{"expr": "sum(rate(audit_events_total{type=\"MODEL_DOWNLOAD\"}[5m]))"}]
+          }
+        ]
+      }
+    }
