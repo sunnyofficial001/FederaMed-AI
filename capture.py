@@ -2,39 +2,66 @@ import asyncio
 from playwright.async_api import async_playwright
 import os
 
-async def main():
-    async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
-        # 1920x1080 full HD enterprise dashboard
-        page = await browser.new_page(viewport={"width": 1920, "height": 1080})
+BASE_URL = "http://localhost:5173"
 
-        # Ensure directory exists
+# Correct routes matching src/main.tsx router configuration
+ROUTES = [
+    {"path": "/",            "name": "executive",      "wait_for": ".metric-card, .glassmorphism, .card"},
+    {"path": "/federated",   "name": "fl_command",     "wait_for": ".page-title, .card, .recharts-wrapper"},
+    {"path": "/analytics",   "name": "analytics",      "wait_for": ".recharts-wrapper, .page-title"},
+    {"path": "/explain",     "name": "explainability", "wait_for": ".recharts-wrapper, .waterfall-chart, .page-title"},
+    {"path": "/monitoring",  "name": "monitoring",     "wait_for": ".recharts-wrapper, .page-title"},
+    {"path": "/governance",  "name": "governance",     "wait_for": ".recharts-wrapper, .page-title"},
+    {"path": "/predict",     "name": "predict",        "wait_for": ".page-title, form, input[type='range']"},
+    {"path": "/architecture","name": "architecture",   "wait_for": ".page-title, .card"},
+]
+
+async def capture():
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(
+            headless=True,
+            args=["--no-sandbox", "--disable-dev-shm-usage"]
+        )
+        context = await browser.new_context(
+            viewport={"width": 1920, "height": 1080},
+            device_scale_factor=1,
+        )
+        page = await context.new_page()
         os.makedirs("assets/screenshots", exist_ok=True)
 
-        routes = [
-            {"path": "/",              "name": "executive"},
-            {"path": "/fl-command",    "name": "fl_command"},
-            {"path": "/analytics",     "name": "analytics"},
-            {"path": "/explainability","name": "explainability"},
-            {"path": "/monitoring",    "name": "monitoring"},
-            {"path": "/governance",    "name": "governance"},
-            {"path": "/predict",       "name": "predict"},
-            {"path": "/architecture",  "name": "architecture"},
-        ]
+        for route in ROUTES:
+            url = f"{BASE_URL}{route['path']}"
+            name = route["name"]
+            print(f"\n→ Navigating to {url} ...")
 
-        for route in routes:
-            url = f"http://localhost:5173{route['path']}"
-            print(f"Navigating to {url}")
-            await page.goto(url, wait_until="networkidle")
-            # Wait for Framer Motion animations, Recharts renders, and React Query fetches
-            await page.wait_for_timeout(4000)
+            try:
+                await page.goto(url, wait_until="networkidle", timeout=30000)
 
-            filepath = f"assets/screenshots/{route['name']}.png"
-            await page.screenshot(path=filepath, full_page=False)
-            print(f"Saved {filepath}")
+                # Wait for key content elements to appear in DOM
+                try:
+                    await page.wait_for_selector(route["wait_for"], timeout=12000)
+                    print(f"  ✓ Content element found for {name}")
+                except Exception:
+                    print(f"  ⚠ Timed out waiting for selector on {name}, proceeding anyway")
+
+                # Extra wait for animations, charts, and React Query data to fully render
+                await page.wait_for_timeout(6000)
+
+                # Scroll to top for clean screenshot
+                await page.evaluate("window.scrollTo(0, 0)")
+                await page.wait_for_timeout(500)
+
+                path = f"assets/screenshots/{name}.png"
+                await page.screenshot(path=path, full_page=False)
+                size = os.path.getsize(path)
+                print(f"  ✓ Saved {path} ({size/1024:.1f} KB)")
+
+            except Exception as e:
+                print(f"  ✗ Error on {name}: {e}")
 
         await browser.close()
-        print("\nAll screenshots captured successfully!")
+        print("\n✅ All screenshots captured!")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(capture())
+
