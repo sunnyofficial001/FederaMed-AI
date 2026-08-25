@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from '../components/ThemeToggle';
 
-/* ── Layer & node definitions ─────────────────────────────── */
 interface TechNode {
   id: string;
   icon: string;
@@ -122,10 +122,11 @@ export default function ArchitecturePage() {
           <h1 className="page-title">System Architecture</h1>
           <p className="page-sub">End-to-end technical stack: React SPA → FastAPI Gateway → Flower FL → Differential Privacy → MLflow</p>
         </div>
-        <div className="header-badges">
+        <div className="header-badges" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="badge badge-blue">Interactive Topology</span>
           <span className="badge badge-purple">6 Architectural Layers</span>
           <span className="badge badge-green">Production Ready</span>
+          <ThemeToggle />
         </div>
       </motion.div>
 
@@ -180,7 +181,6 @@ export default function ArchitecturePage() {
                 whileHover={{ scale: 1.005 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  {/* Layer icon & label */}
                   <div style={{
                     width: 48, height: 48, borderRadius: 12, flexShrink: 0,
                     background: `linear-gradient(135deg, ${layer.color}30, ${layer.color}10)`,
@@ -263,7 +263,6 @@ export default function ArchitecturePage() {
 
         {/* Right Info Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-          {/* Active Node Detail Card */}
           <AnimatePresence mode="wait">
             {activeNode ? (
               <motion.div
@@ -309,7 +308,6 @@ export default function ArchitecturePage() {
             )}
           </AnimatePresence>
 
-          {/* Security & Compliance Card */}
           <div className="glass card">
             <div className="card-header">
               <span className="card-title">Security & Compliance</span>

@@ -1,15 +1,14 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
-  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  LineChart, Line, CartesianGrid, Legend, RadarChart,
-  PolarGrid, PolarAngleAxis, Radar,
+  ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend
 } from 'recharts';
-import { apiFetch, tooltipStyle } from '../utils';
+import Card from '../components/Card';
+import ThemeToggle from '../components/ThemeToggle';
+import { apiFetch } from '../utils';
 import { useTheme } from '../context/ThemeContext';
 
-/* ── Types ────────────────────────────────────────────────── */
 interface GovModel {
   run_id: string;
   model_name: string;
@@ -27,7 +26,6 @@ interface GovData {
   audit_trail: { timestamp: string; user: string; event: string }[];
 }
 
-/* ── Helpers ──────────────────────────────────────────────── */
 const LIFECYCLE_STAGES = [
   { id: 'training', label: 'Training', icon: '🔬', color: '#2563eb', desc: 'Active model training' },
   { id: 'archived', label: 'Archived', icon: '📦', color: '#64748b', desc: 'Historical versions' },
@@ -57,18 +55,11 @@ const fetchGovernance = () => apiFetch('/governance/models', {
   audit_trail: [
     { timestamp: '2026-06-18T14:30:00Z', user: 'ml-pipeline-bot', event: 'Model XGBoost_FedProx_v3 promoted to Production' },
     { timestamp: '2026-06-18T12:00:00Z', user: 'dr.chen@hospital-a.org', event: 'Staging validation approved for XGBoost_FedProx_v3' },
-    { timestamp: '2026-06-17T09:15:00Z', user: 'ml-pipeline-bot', event: 'Federated training round 5 completed — 5 clients' },
-    { timestamp: '2026-06-15T16:45:00Z', user: 'admin@federamed.ai', event: 'Compliance audit passed — HIPAA check OK' },
-    { timestamp: '2026-06-15T08:00:00Z', user: 'ml-pipeline-bot', event: 'XGBoost_FedAvg_v3 moved to Staging' },
-    { timestamp: '2026-06-10T11:30:00Z', user: 'dr.patel@hospital-b.org', event: 'LightGBM_FedProx_v2 archived after benchmark' },
   ],
 });
 
-/* ── Component ────────────────────────────────────────────── */
 export default function GovernancePage() {
   const { data, isLoading } = useQuery<GovData>({ queryKey: ['governance'], queryFn: fetchGovernance });
-  const [activeTab, setActiveTab] = useState<'overview' | 'models' | 'compliance' | 'audit'>('overview');
-  const [selectedModel, setSelectedModel] = useState<GovModel | null>(null);
   const { theme } = useTheme();
   const isLight = theme === 'light';
 
@@ -102,12 +93,8 @@ export default function GovernancePage() {
 
   return (
     <div className="page">
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <motion.div
-        className="page-header"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
+      {/* Header */}
+      <motion.div className="page-header" initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
             <div style={{
@@ -120,14 +107,15 @@ export default function GovernancePage() {
           </div>
           <p className="page-sub">Model lifecycle management, compliance analytics, and immutable audit trails · MLflow Integrated</p>
         </div>
-        <div className="header-badges">
+        <div className="header-badges" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="badge badge-green">● MLflow: {data.experiment}</span>
           <span className="badge badge-blue">{data.total_runs} Total Runs</span>
           <span className="badge badge-purple">HIPAA Compliant</span>
+          <ThemeToggle />
         </div>
       </motion.div>
 
-      {/* ── Governance KPIs ─────────────────────────────────────── */}
+      {/* Governance KPIs */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -158,7 +146,7 @@ export default function GovernancePage() {
         ))}
       </motion.div>
 
-      {/* ── Model Lifecycle Visualization ────────────────────────── */}
+      {/* Model Lifecycle */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -171,12 +159,11 @@ export default function GovernancePage() {
           <span className="badge badge-amber">{data.models?.length ?? 0} Models Tracked</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'stretch', gap: '1rem', flexWrap: 'wrap' }}>
-          {LIFECYCLE_STAGES.map((stage, i) => {
+          {LIFECYCLE_STAGES.map((stage) => {
             const count = lifecycleCount(stage.label);
             const active = count > 0;
             return (
               <div key={stage.id} style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 200 }}>
-                {/* Stage block */}
                 <motion.div
                   whileHover={{ y: -4 }}
                   style={{
@@ -211,7 +198,7 @@ export default function GovernancePage() {
         </div>
       </motion.div>
 
-      {/* Overview Radar + Deployments Grid */}
+      {/* Radar + Deployments Grid */}
       <div className="two-col">
         <Card title="Production Model vs Baseline" badge={prodModel?.model_name ?? 'XGBoost_v3'} badgeColor="green">
           <ResponsiveContainer width="100%" height={280}>

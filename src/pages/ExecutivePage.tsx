@@ -6,7 +6,8 @@ import {
 } from 'recharts';
 import KPICard from '../components/KPICard';
 import Card from '../components/Card';
-import { apiFetch, tooltipStyle, CHART_COLORS } from '../utils';
+import ThemeToggle from '../components/ThemeToggle';
+import { apiFetch, tooltipStyle } from '../utils';
 
 const fetchExecutive = () => apiFetch('/executive', {
   total_patients: 101766, readmission_rate_pct: 11.2, high_risk_population: 11357,
@@ -14,8 +15,6 @@ const fetchExecutive = () => apiFetch('/executive', {
   healthcare_risk_index: 3.2, fl_rounds_completed: 5, avg_time_in_hospital: 4.4,
 });
 const fetchAnalytics = () => apiFetch('/analytics', { readmission_breakdown: [], gender_distribution: [], trend: [] });
-const fetchHospitals = () => apiFetch('/hospitals', []);
-const fetchMetrics   = () => apiFetch('/metrics', { roc_auc: 0.683, accuracy: 0.889, f1_score: 0.047 });
 
 const trendData = [
   { date: 'Jun 14', readmission: 11.8, risk_index: 3.5 },
@@ -30,8 +29,6 @@ const trendData = [
 export default function ExecutivePage() {
   const { data: exec }     = useQuery({ queryKey: ['executive'],  queryFn: fetchExecutive });
   const { data: analytics }= useQuery({ queryKey: ['analytics'],  queryFn: fetchAnalytics });
-  const { data: hospitals }= useQuery({ queryKey: ['hospitals'],  queryFn: fetchHospitals });
-  const { data: metrics }  = useQuery({ queryKey: ['metrics'],    queryFn: fetchMetrics });
 
   const readmissionData = analytics?.readmission_breakdown ?? [
     { category: 'Not Readmitted', count: 54864, pct: 53.9, color: '#10b981' },
@@ -46,10 +43,11 @@ export default function ExecutivePage() {
           <h1 className="page-title">Executive Intelligence</h1>
           <p className="page-sub">Real-time healthcare KPIs · Diabetes 130-US Hospitals · 101,766 patients</p>
         </div>
-        <div className="header-badges">
+        <div className="header-badges" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="badge badge-green">● Live</span>
           <span className="badge badge-blue">XGBoost Production</span>
           <span className="badge badge-purple">FL Round 5/5</span>
+          <ThemeToggle />
         </div>
       </motion.div>
 
@@ -77,19 +75,9 @@ export default function ExecutivePage() {
                 ))}
               </Pie>
               <Tooltip {...tooltipStyle} formatter={(v: number) => [v.toLocaleString(), 'Patients']} />
-              <Legend formatter={(v) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{v}</span>} />
+              <Legend formatter={(v) => <span style={{ color: 'var(--text)', fontSize: 12, fontWeight: 600 }}>{v}</span>} />
             </PieChart>
           </ResponsiveContainer>
-          <div className="legend-breakdown">
-            {readmissionData.map((d: { category: string; count: number; pct: number; color: string }) => (
-              <div key={d.category} className="breakdown-row">
-                <span className="breakdown-dot" style={{ background: d.color }} />
-                <span className="breakdown-label">{d.category}</span>
-                <span className="breakdown-count">{d.count.toLocaleString()}</span>
-                <span className="breakdown-pct">{d.pct}%</span>
-              </div>
-            ))}
-          </div>
         </Card>
 
         {/* 7-Day Trend */}
@@ -105,43 +93,12 @@ export default function ExecutivePage() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="date" stroke="#475569" tick={{ fontSize: 11 }} />
               <YAxis stroke="#475569" tick={{ fontSize: 11 }} domain={[10, 13]} unit="%" />
-              <Tooltip {...tooltipStyle} formatter={(v: number) => [`${v}%`, 'Readmission Rate']} />
-              <Area type="monotone" dataKey="readmission" stroke="#ef4444" fill="url(#readGrad)"
-                strokeWidth={2} dot={{ fill: '#ef4444', r: 3 }} />
+              <Tooltip {...tooltipStyle} />
+              <Area type="monotone" dataKey="readmission" stroke="#ef4444" fill="url(#readGrad)" strokeWidth={2} name="Readmission Rate (%)" />
             </AreaChart>
           </ResponsiveContainer>
         </Card>
       </div>
-
-      {/* Hospital Performance Table */}
-      <Card title="Hospital Network Performance" badge="5 Active Sites" badgeColor="green" delay={0.3}>
-        <div className="table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Hospital</th><th>Location</th><th>Records</th>
-                <th>Accuracy</th><th>Loss</th><th>FL Weight</th><th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(hospitals ?? []).map((h: {
-                id: string; location: string; samples: number;
-                accuracy: number; loss: number; contribution_weight: number; status: string;
-              }) => (
-                <tr key={h.id}>
-                  <td className="td-bold">{h.id.replace('_', ' ')}</td>
-                  <td className="td-muted">{h.location}</td>
-                  <td>{(h.samples ?? 0).toLocaleString()}</td>
-                  <td className="td-blue">{((h.accuracy ?? 0) * 100).toFixed(1)}%</td>
-                  <td className="td-muted">{(h.loss ?? 0).toFixed(4)}</td>
-                  <td>{((h.contribution_weight ?? 0) * 100).toFixed(1)}%</td>
-                  <td><span className="status-pill online">Online</span></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </Card>
     </div>
   );
 }

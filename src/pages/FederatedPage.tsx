@@ -6,6 +6,7 @@ import {
   ResponsiveContainer, Legend, BarChart, Bar
 } from 'recharts';
 import Card from '../components/Card';
+import ThemeToggle from '../components/ThemeToggle';
 import { apiFetch, tooltipStyle } from '../utils';
 
 const fetchFLRounds = () => apiFetch('/fl/rounds', { rounds: [], total_rounds: 5 });
@@ -26,7 +27,6 @@ export default function FederatedPage() {
     loss: +r.global_loss.toFixed(4),
   }));
 
-  // Animate round pulsing
   useEffect(() => {
     const interval = setInterval(() => {
       setFlowPulse(Math.floor(Math.random() * 5));
@@ -53,10 +53,11 @@ export default function FederatedPage() {
           <h1 className="page-title">FL Command Center</h1>
           <p className="page-sub">FedProx + FedAvg · 5 Hospitals · 5 Rounds · 101,766 Patients</p>
         </div>
-        <div className="header-badges">
+        <div className="header-badges" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="badge badge-green">● 5/5 Clients Online</span>
           <span className="badge badge-blue">Strategy: FedProx</span>
           <span className="badge badge-purple">ε=1.5 Privacy</span>
+          <ThemeToggle />
         </div>
       </motion.div>
 
@@ -68,7 +69,7 @@ export default function FederatedPage() {
             display: 'flex',
             flexDirection: 'row',
             alignItems: 'center',
-            justifyContent: 'space-between',
+            justify: 'space-between',
             padding: '1.5rem',
             minHeight: '380px',
             gap: '2rem',
@@ -150,7 +151,7 @@ export default function FederatedPage() {
               <YAxis yAxisId="acc" stroke="#3b82f6" tick={{ fontSize: 11 }} domain={[75, 92]} unit="%" />
               <YAxis yAxisId="loss" orientation="right" stroke="#ef4444" tick={{ fontSize: 11 }} />
               <Tooltip {...tooltipStyle} />
-              <Legend formatter={(v) => <span style={{ color: '#94a3b8', fontSize: 12 }}>{v}</span>} />
+              <Legend formatter={(v) => <span style={{ color: 'var(--text)', fontSize: 12, fontWeight: 600 }}>{v}</span>} />
               <Line yAxisId="acc" type="monotone" dataKey="accuracy" stroke="#3b82f6" strokeWidth={2}
                 dot={{ fill: '#3b82f6', r: 4 }} name="Global Accuracy (%)" />
               <Line yAxisId="loss" type="monotone" dataKey="loss" stroke="#ef4444" strokeWidth={2}

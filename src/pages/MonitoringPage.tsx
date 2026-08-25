@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import Card from '../components/Card';
 import KPICard from '../components/KPICard';
+import ThemeToggle from '../components/ThemeToggle';
 import { apiFetch, tooltipStyle, statusColor } from '../utils';
 import { useTheme } from '../context/ThemeContext';
 
@@ -60,9 +61,10 @@ export default function MonitoringPage() {
           <h1 className="page-title">System & Model Monitoring</h1>
           <p className="page-sub">Continuous data drift detection and infrastructure health</p>
         </div>
-        <div className="header-badges">
+        <div className="header-badges" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="badge badge-green">● Infrastructure Healthy</span>
           <span className="badge badge-blue">K-S Drift Engine Active</span>
+          <ThemeToggle />
         </div>
       </motion.div>
 
@@ -92,7 +94,6 @@ export default function MonitoringPage() {
                <YAxis stroke={isLight ? "#64748b" : "#475569"} tick={{ fontSize: 11 }} domain={[0, 0.1]} />
                <RechartsTooltip {...tooltipStyle} />
                <Area type="monotone" dataKey="drift_score" stroke={isLight ? "#2563eb" : "#3b82f6"} fill="url(#driftGrad)" strokeWidth={2} />
-               {/* Threshold line */}
                <Area type="monotone" dataKey={() => 0.05} stroke="#ef4444" strokeDasharray="5 5" fill="none" />
              </AreaChart>
            </ResponsiveContainer>

@@ -5,6 +5,7 @@ import {
   ResponsiveContainer
 } from 'recharts';
 import Card from '../components/Card';
+import ThemeToggle from '../components/ThemeToggle';
 import { apiFetch, tooltipStyle } from '../utils';
 import { useTheme } from '../context/ThemeContext';
 
@@ -48,9 +49,10 @@ export default function ExplainabilityPage() {
           <h1 className="page-title">Explainable AI (XAI)</h1>
           <p className="page-sub">Global and local SHAP explanations for XGBoost Readmission Model</p>
         </div>
-        <div className="header-badges">
+        <div className="header-badges" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="badge badge-purple">SHAP TreeExplainer</span>
           <span className="badge badge-blue">Production Model</span>
+          <ThemeToggle />
         </div>
       </motion.div>
 
@@ -114,7 +116,6 @@ export default function ExplainabilityPage() {
 
           {/* Table Container */}
           <div style={{ width: '100%', marginBottom: '1.5rem' }}>
-            {/* Table Header */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: '2.5fr 3fr 1.5fr',
@@ -154,7 +155,6 @@ export default function ExplainabilityPage() {
                     margin: '2px 0'
                   }}
                 >
-                  {/* Column 1: Feature Name & Value */}
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                     <span style={{ fontSize: '0.85rem', fontWeight: 700, color: isLight ? '#0f172a' : '#f1f5f9', textTransform: 'capitalize' }}>
                       {w.name}
@@ -164,7 +164,6 @@ export default function ExplainabilityPage() {
                     </span>
                   </div>
 
-                  {/* Column 2: Visual Impact Bar */}
                   <div style={{ width: '100%', background: isLight ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.05)', borderRadius: '6px', height: '10px', overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
                     <motion.div
                       style={{
@@ -180,7 +179,6 @@ export default function ExplainabilityPage() {
                     />
                   </div>
 
-                  {/* Column 3: SHAP Impact Value */}
                   <div style={{
                     textAlign: 'right',
                     fontSize: '0.88rem',
