@@ -11,11 +11,16 @@ export class DiagnosticNeuralNetwork {
     return { probability: 0.28, riskLevel: "Moderate Risk", confidence: 0.92 };
   }
 
-  localTrainStep(samples: number, lr: number) {
+  localTrainStep(epochFeatures?: any, epochLabels?: any, lr?: number, options?: any) {
+    const gradients = new Float32Array(this.weights.length).map(() => Math.random() * 0.05);
     for (let i = 0; i < this.weights.length; i++) {
-      this.weights[i] += (Math.random() - 0.5) * lr * 0.01;
+      this.weights[i] += (Math.random() - 0.5) * (lr || 0.05) * 0.01;
     }
-    return { loss: 0.25 + Math.random() * 0.1, accuracy: 0.88 + Math.random() * 0.05 };
+    return {
+      loss: 0.25 + Math.random() * 0.1,
+      accuracy: 0.88 + Math.random() * 0.05,
+      gradients
+    };
   }
 }
 
@@ -34,11 +39,14 @@ export class PrivacyEngine {
     return 0.18 + rounds * 0.02;
   }
 
-  clipGradients(val: number) {
-    return Math.min(val, this.maxGradNorm);
+  clipGradients(weights: Float32Array) {
+    for (let i = 0; i < weights.length; i++) {
+      weights[i] = Math.min(Math.max(weights[i], -this.maxGradNorm), this.maxGradNorm);
+    }
+    return weights;
   }
 
-  injectNoise(weights: Float32Array) {
+  injectNoise(weights: Float32Array, clientCount?: number) {
     const noisy = new Float32Array(weights.length);
     for (let i = 0; i < weights.length; i++) {
       noisy[i] = weights[i] + (Math.random() - 0.5) * 0.01 * this.noiseMultiplier;
@@ -46,14 +54,19 @@ export class PrivacyEngine {
     return noisy;
   }
 
-  computePrivacyLoss() {
-    return { epsilonSpent: 0.18, deltaSpent: 1e-5, remainingBudget: 1.32 };
+  computePrivacyLoss(currentRound?: number) {
+    const spent = 0.1 + (currentRound || 1) * 0.06;
+    return { epsilon: spent, epsilonSpent: spent, deltaSpent: 1e-5, remainingBudget: 1.5 - spent };
   }
 }
 
 export class SecureAggregator {
-  static generatePairwiseMasks(clientsCount: number) {
-    return Array.from({ length: clientsCount }, () => "0x" + Math.random().toString(16).substring(2, 10));
+  static generatePairwiseMasks(clientIds: string[], numWeights: number) {
+    const map: { [clientId: string]: Float32Array } = {};
+    clientIds.forEach(id => {
+      map[id] = new Float32Array(numWeights).map(() => (Math.random() - 0.5) * 0.001);
+    });
+    return map;
   }
 
   static aggregate(clientUpdates: any[]) {

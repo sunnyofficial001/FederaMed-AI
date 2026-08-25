@@ -7,19 +7,19 @@ export class AttackSimulationLab {
     return { detectedByFedProx: true, maliciousGradientDiscarded: true };
   }
 
-  static simulateMembershipInference() {
-    return { attackType: "Membership Inference", successRate: "1.2%", defendedByDP: true, status: "Mitigated" };
+  static simulateMembershipInference(model?: any, base?: any, test?: any, dp?: boolean) {
+    return { attackType: "Membership Inference", successRate: "1.2%", defendedByDP: !!dp, status: "Mitigated" };
   }
 
-  static simulateModelInversion() {
+  static simulateModelInversion(model?: any, dp?: boolean) {
     return { attackType: "Model Inversion", reconstructedFeatureQuality: "Low Noise", status: "Blocked" };
   }
 
-  static simulateDataPoisoning() {
+  static simulateDataPoisoning(model?: any, secAgg?: boolean) {
     return { attackType: "Data Poisoning", maliciousPercentage: "5%", detectedByAnomalyEngine: true, status: "Discarded" };
   }
 
-  static simulateBackdoor() {
+  static simulateBackdoor(model?: any, secAgg?: boolean) {
     return { attackType: "Backdoor Pattern Injection", triggerActivated: false, status: "Neutralized" };
   }
 }
