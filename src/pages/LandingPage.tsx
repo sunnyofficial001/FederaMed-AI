@@ -229,24 +229,22 @@ export default function LandingPage() {
 
         {/* Hero Main Headline */}
         <motion.div variants={itemVariants} style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <h1 style={{
-            fontSize: 'clamp(2.8rem, 5.5vw, 4.8rem)',
-            fontWeight: 900,
-            lineHeight: 1.08,
-            letterSpacing: '-0.035em',
-            margin: '0 auto 1.5rem',
-            maxWidth: '960px',
-            background: isLight 
-              ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 40%, #2563eb 70%, #7c3aed 100%)'
-              : 'linear-gradient(135deg, #ffffff 0%, #cbd5e1 35%, #93c5fd 70%, #a78bfa 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
-          }}>
+          <h1 
+            className="hero-gradient-text"
+            style={{
+              fontSize: 'clamp(2.8rem, 5.5vw, 4.8rem)',
+              fontWeight: 900,
+              lineHeight: 1.08,
+              letterSpacing: '-0.035em',
+              margin: '0 auto 1.5rem',
+              maxWidth: '960px'
+            }}
+          >
             Privacy-Preserving Federated Healthcare Intelligence
           </h1>
           <p style={{
             fontSize: 'clamp(1.1rem, 2.2vw, 1.3rem)',
-            color: '#64748b',
+            color: isLight ? '#475569' : '#94a3b8',
             maxWidth: '780px',
             margin: '0 auto',
             lineHeight: 1.65,
