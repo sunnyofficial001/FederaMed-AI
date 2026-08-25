@@ -10,7 +10,8 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30000 } }
 });
 
-const API = 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || '';
+
 
 const fetchMetrics = async () => {
   try {
