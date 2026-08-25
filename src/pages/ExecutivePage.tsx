@@ -45,9 +45,9 @@ export default function ExecutivePage() {
         </div>
         <div className="header-badges" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span className="badge badge-green">● Live</span>
+          <ThemeToggle />
           <span className="badge badge-blue">XGBoost Production</span>
           <span className="badge badge-purple">FL Round 5/5</span>
-          <ThemeToggle />
         </div>
       </motion.div>
 
