@@ -241,3 +241,121 @@ body {
 .data-table tr:hover td { background: rgba(0,0,0,0.03); }
 .status-pill { padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
 .status-pill.online { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+
+/* ── FL TOPOLOGY ────────────────────────────────────────── */
+.fl-topology {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  min-height: 380px;
+  gap: 2rem;
+  background: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.fl-clients {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  width: 250px;
+}
+
+.fl-node {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "icon label metric"
+    "icon sub metric";
+  gap: 2px 0.85rem;
+  align-items: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+[data-theme="light"] .fl-node {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.fl-node.fl-active {
+  border-color: rgba(59, 130, 246, 0.6);
+  background: rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+}
+
+.fl-node-icon { grid-area: icon; font-size: 1.5rem; }
+.fl-node-label { grid-area: label; font-size: 0.85rem; font-weight: 600; color: var(--text); }
+.fl-node-samples { grid-area: sub; font-size: 0.7rem; color: var(--muted); }
+.fl-node-metric { grid-area: metric; font-size: 0.95rem; font-weight: 700; color: var(--blue); }
+
+.fl-arrow-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.fl-arrows {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  color: var(--blue);
+  font-weight: 800;
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.fl-arrow {
+  display: inline-block;
+  transform: rotate(-90deg);
+}
+
+.fl-agg-label {
+  font-size: 0.75rem;
+  color: var(--blue);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.fl-server {
+  width: 300px;
+  background: linear-gradient(180deg, rgba(30, 58, 138, 0.4) 0%, rgba(15, 23, 42, 0.85) 100%);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 16px;
+  padding: 1.75rem;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="light"] .fl-server {
+  background: linear-gradient(180deg, rgba(219, 234, 254, 0.8) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.3);
+}
+
+.fl-server-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+.fl-server-title { font-weight: 800; color: var(--text); font-size: 1.15rem; }
+.fl-server-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 1rem; }
+.fl-server-metrics {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  border: 1px solid var(--border);
+}
