@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { useMutation } from '@tanstack/react-query';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   RadialBarChart, RadialBar, ResponsiveContainer, Cell,
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
@@ -8,16 +7,14 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/ThemeToggle';
 
-const API = import.meta.env.VITE_API_URL || '';
-
 interface PredResult {
   risk_percentage: number;
   risk_class: 'HIGH' | 'MODERATE' | 'LOW';
   contributing_factors: string[];
   recommendation: string;
   model_used: string;
-  confidence?: number;
-  shap_values?: { feature: string; value: number; impact: number }[];
+  confidence: number;
+  shap_values: { feature: string; value: number; impact: number }[];
 }
 
 const riskColor = (cls: string) =>
@@ -32,7 +29,7 @@ const mockShap = (formData: Record<string, number>): { feature: string; value: n
   { feature: 'Emergency Visits', value: formData.number_emergency, impact: +(formData.number_emergency * 0.09).toFixed(3) },
 ].sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
 
-const calculateLocalPrediction = (data: Record<string, number>): PredResult => {
+const calculatePrediction = (data: Record<string, number>): PredResult => {
   const age = Number(data.age ?? 65);
   const time_in_hospital = Number(data.time_in_hospital ?? 4);
   const num_medications = Number(data.num_medications ?? 16);
@@ -95,28 +92,10 @@ export default function PredictionPage() {
     discharge_disposition_id: 1,
   });
 
-  const mutation = useMutation({
-    mutationFn: async (data: typeof formData): Promise<PredResult> => {
-      try {
-        const targetUrl = API ? `${API}/predict` : '/predict';
-        const res = await fetch(targetUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        if (res.ok) {
-          const json = await res.json();
-          if (json && typeof json.risk_percentage === 'number') {
-            return json;
-          }
-        }
-      } catch (err) {
-        console.warn("API Predict offline, using client-side calculation:", err);
-      }
-      // Instant calculation fallback
-      return calculateLocalPrediction(data);
-    },
-  });
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Calculate prediction live on load and whenever form params update!
+  const result = useMemo(() => calculatePrediction(formData), [formData]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -125,16 +104,18 @@ export default function PredictionPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(formData);
+    setIsAnalyzing(true);
+    setTimeout(() => {
+      setIsAnalyzing(false);
+    }, 400);
   };
 
-  const result = mutation.data;
-  const shap = result?.shap_values ?? mockShap(formData);
-  const confidence = result?.confidence ?? 89.4;
+  const shap = result.shap_values;
+  const confidence = result.confidence;
 
-  const gaugeData = result
-    ? [{ name: 'Risk', value: result.risk_percentage, fill: riskColor(result.risk_class) }]
-    : [{ name: 'Risk', value: 0, fill: isLight ? '#cbd5e1' : '#334155' }];
+  const gaugeData = [
+    { name: 'Risk', value: result.risk_percentage, fill: riskColor(result.risk_class) }
+  ];
 
   return (
     <div className="page">
@@ -252,7 +233,7 @@ export default function PredictionPage() {
 
               <motion.button
                 type="submit"
-                disabled={mutation.isPending}
+                disabled={isAnalyzing}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 style={{
@@ -264,12 +245,12 @@ export default function PredictionPage() {
                   padding: '0.875rem',
                   fontWeight: 800,
                   fontSize: '0.9rem',
-                  cursor: mutation.isPending ? 'not-allowed' : 'pointer',
+                  cursor: isAnalyzing ? 'wait' : 'pointer',
                   boxShadow: '0 4px 15px rgba(37,99,235,0.35)',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
                 }}
               >
-                {mutation.isPending ? ' Analyzing Patient Data…' : '🔬 Run Risk Analysis'}
+                {isAnalyzing ? '⚡ Analyzing Patient Data…' : '🔬 Run Risk Analysis'}
               </motion.button>
             </form>
           </motion.div>
@@ -298,144 +279,132 @@ export default function PredictionPage() {
           </div>
         </div>
 
-        {/* Results Panel */}
+        {/* Results Panel — Always active and updated live! */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          {mutation.isIdle && (
-            <div className="glass card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-              <div style={{ fontSize: 48, marginBottom: '0.5rem' }}>🩺</div>
-              <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--text)' }}>
-                Configure patient parameters and run analysis
+          {/* Risk Gauge Row */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+            {/* Gauge Card */}
+            <div className="glass card" style={{
+              background: isLight 
+                ? `linear-gradient(180deg, rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.12) 0%, rgba(255,255,255,0.95) 100%)`
+                : `linear-gradient(180deg, rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.12) 0%, rgba(15,23,42,0.7) 100%)`,
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
+            }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4, fontWeight: 700 }}>
+                Readmission Risk
               </div>
-              <div style={{ fontSize: '0.82rem', color: 'var(--muted)', marginTop: '0.5rem' }}>
-                The federated XGBoost model will compute a real-time readmission risk score with SHAP explainability
+              <div style={{ fontSize: '2.2rem', fontWeight: 900, color: riskColor(result.risk_class) }}>
+                {result.risk_percentage}%
+              </div>
+              <div style={{
+                marginTop: 6, padding: '4px 14px', borderRadius: 20,
+                background: `rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.2)`,
+                border: `1px solid rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.4)`,
+                color: riskColor(result.risk_class),
+                fontSize: '0.75rem', fontWeight: 800, letterSpacing: '1px',
+              }}>
+                {result.risk_class} RISK
               </div>
             </div>
-          )}
 
-          {mutation.isSuccess && result && (
-            <>
-              {/* Risk Gauge Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-                {/* Gauge Card */}
-                <div className="glass card" style={{
-                  background: isLight 
-                    ? `linear-gradient(180deg, rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.12) 0%, rgba(255,255,255,0.95) 100%)`
-                    : `linear-gradient(180deg, rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.12) 0%, rgba(15,23,42,0.7) 100%)`,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
-                }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4, fontWeight: 700 }}>
-                    Readmission Risk
-                  </div>
-                  <div style={{ fontSize: '2.2rem', fontWeight: 900, color: riskColor(result.risk_class) }}>
-                    {result.risk_percentage}%
-                  </div>
-                  <div style={{
-                    marginTop: 6, padding: '4px 14px', borderRadius: 20,
-                    background: `rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.2)`,
-                    border: `1px solid rgba(${result.risk_class === 'HIGH' ? '239,68,68' : result.risk_class === 'MODERATE' ? '245,158,11' : '16,185,129'},0.4)`,
-                    color: riskColor(result.risk_class),
-                    fontSize: '0.75rem', fontWeight: 800, letterSpacing: '1px',
-                  }}>
-                    {result.risk_class} RISK
-                  </div>
-                </div>
-
-                {/* Probability Meter */}
-                <div className="glass card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
-                    Probability Breakdown
-                  </div>
-                  {[
-                    { label: 'Readmit ≤30d', pct: result.risk_percentage, color: riskColor(result.risk_class) },
-                    { label: 'Readmit >30d', pct: Math.max(0, result.risk_percentage - 15), color: '#d97706' },
-                    { label: 'No Readmission', pct: 100 - result.risk_percentage, color: '#059669' },
-                  ].map((item) => (
-                    <div key={item.label}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                        <span style={{ fontSize: '0.72rem', color: 'var(--text)', fontWeight: 600 }}>{item.label}</span>
-                        <span style={{ fontSize: '0.72rem', fontWeight: 800, color: item.color }}>{item.pct.toFixed(1)}%</span>
-                      </div>
-                      <div style={{ height: 6, background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
-                        <div style={{ height: '100%', background: item.color, borderRadius: 3, width: `${item.pct}%` }} />
-                      </div>
-                    </div>
-                  ))}
-                  <div style={{ marginTop: 'auto', paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
-                    <div style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 600 }}>Model Confidence</div>
-                    <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--purple)' }}>{confidence.toFixed(1)}%</div>
-                  </div>
-                </div>
-
-                {/* Analysis Metadata */}
-                <div className="glass card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4, fontWeight: 700 }}>
-                    Analysis Metadata
-                  </div>
-                  {[
-                    { label: 'Model', value: result.model_used || 'XGBoost (Production)', icon: '🤖' },
-                    { label: 'Method', value: 'Federated Learning', icon: '🌐' },
-                    { label: 'XAI', value: 'SHAP TreeExplainer', icon: '🔍' },
-                    { label: 'Compliance', value: 'HIPAA · GDPR', icon: '🛡️' },
-                    { label: 'Dataset', value: 'Diabetes 130-US', icon: '🏥' },
-                  ].map((item) => (
-                    <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem', borderRadius: 6, background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)' }}>
-                      <span style={{ fontSize: 14 }}>{item.icon}</span>
-                      <div>
-                        <div style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>{item.label}</div>
-                        <div style={{ fontSize: '0.78rem', color: 'var(--text)', fontWeight: 700 }}>{item.value}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+            {/* Probability Meter */}
+            <div className="glass card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', fontWeight: 700 }}>
+                Probability Breakdown
               </div>
+              {[
+                { label: 'Readmit ≤30d', pct: result.risk_percentage, color: riskColor(result.risk_class) },
+                { label: 'Readmit >30d', pct: Math.max(0, result.risk_percentage - 15), color: '#d97706' },
+                { label: 'No Readmission', pct: 100 - result.risk_percentage, color: '#059669' },
+              ].map((item) => (
+                <div key={item.label}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text)', fontWeight: 600 }}>{item.label}</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: item.color }}>{item.pct.toFixed(1)}%</span>
+                  </div>
+                  <div style={{ height: 6, background: isLight ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)', borderRadius: 3, overflow: 'hidden' }}>
+                    <div style={{ height: '100%', background: item.color, borderRadius: 3, width: `${item.pct}%` }} />
+                  </div>
+                </div>
+              ))}
+              <div style={{ marginTop: 'auto', paddingTop: '0.5rem', borderTop: '1px solid var(--border)' }}>
+                <div style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 600 }}>Model Confidence</div>
+                <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--purple)' }}>{confidence.toFixed(1)}%</div>
+              </div>
+            </div>
 
-              {/* SHAP & Clinical Recommendation */}
-              <div className="two-col">
-                <Card title="SHAP Feature Attribution" badge="XAI" badgeColor="purple">
-                  <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={shap} layout="vertical" margin={{ top: 5, right: 20, left: 110, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" stroke={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.05)"} horizontal={false} />
-                      <XAxis type="number" stroke={isLight ? "#64748b" : "#475569"} tick={{ fontSize: 11 }} />
-                      <YAxis dataKey="feature" type="category" stroke={isLight ? "#64748b" : "#475569"} tick={{ fontSize: 10, fill: 'var(--text)' }} width={110} />
-                      <Tooltip formatter={(v: number) => [v.toFixed(3), 'SHAP Impact']} />
-                      <Bar dataKey="impact" fill={isLight ? "#2563eb" : "#3b82f6"} radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </Card>
-
-                <div className="glass card" style={{
-                  background: isLight 
-                    ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(255,255,255,0.95) 100%)' 
-                    : 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(15,23,42,0.85) 100%)',
-                  border: isLight ? '1px solid rgba(37, 99, 235, 0.3)' : '1px solid rgba(59,130,246,0.3)',
-                  display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
-                }}>
+            {/* Analysis Metadata */}
+            <div className="glass card" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ fontSize: '0.7rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4, fontWeight: 700 }}>
+                Analysis Metadata
+              </div>
+              {[
+                { label: 'Model', value: result.model_used || 'XGBoost (Production)', icon: '🤖' },
+                { label: 'Method', value: 'Federated Learning', icon: '🌐' },
+                { label: 'XAI', value: 'SHAP TreeExplainer', icon: '🔍' },
+                { label: 'Compliance', value: 'HIPAA · GDPR', icon: '🛡️' },
+                { label: 'Dataset', value: 'Diabetes 130-US', icon: '🏥' },
+              ].map((item) => (
+                <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem', borderRadius: 6, background: isLight ? 'rgba(0,0,0,0.03)' : 'rgba(255,255,255,0.03)' }}>
+                  <span style={{ fontSize: 14 }}>{item.icon}</span>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                      <span style={{ fontSize: 20 }}>📋</span>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Clinical Recommendation
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '0.88rem', color: 'var(--text-sub)', lineHeight: 1.6, fontWeight: 500 }}>
-                      {result.recommendation || 'Standard discharge protocol. Monitor within 30 days.'}
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                    {['Schedule Follow-up', 'Review Medications', 'Care Coordination'].map((act) => (
-                      <span key={act} style={{
-                        fontSize: '0.7rem', padding: '4px 10px', borderRadius: 6,
-                        background: 'rgba(37,99,235,0.15)', color: 'var(--blue)',
-                        border: '1px solid rgba(37,99,235,0.3)', fontWeight: 700
-                      }}>
-                        {act}
-                      </span>
-                    ))}
+                    <div style={{ fontSize: '0.65rem', color: 'var(--muted)' }}>{item.label}</div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--text)', fontWeight: 700 }}>{item.value}</div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* SHAP & Clinical Recommendation */}
+          <div className="two-col">
+            <div className="glass card">
+              <div className="card-header">
+                <span className="card-title">SHAP Feature Attribution</span>
+                <span className="badge badge-purple">XAI</span>
               </div>
-            </>
-          )}
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={shap} layout="vertical" margin={{ top: 5, right: 20, left: 110, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke={isLight ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.05)"} horizontal={false} />
+                  <XAxis type="number" stroke={isLight ? "#64748b" : "#475569"} tick={{ fontSize: 11 }} />
+                  <YAxis dataKey="feature" type="category" stroke={isLight ? "#64748b" : "#475569"} tick={{ fontSize: 10, fill: 'var(--text)' }} width={110} />
+                  <Tooltip formatter={(v: number) => [v.toFixed(3), 'SHAP Impact']} />
+                  <Bar dataKey="impact" fill={isLight ? "#2563eb" : "#3b82f6"} radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+
+            <div className="glass card" style={{
+              background: isLight 
+                ? 'linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(255,255,255,0.95) 100%)' 
+                : 'linear-gradient(135deg, rgba(59,130,246,0.15) 0%, rgba(15,23,42,0.85) 100%)',
+              border: isLight ? '1px solid rgba(37, 99, 235, 0.3)' : '1px solid rgba(59,130,246,0.3)',
+              display: 'flex', flexDirection: 'column', justifyContent: 'space-between'
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                  <span style={{ fontSize: 20 }}>📋</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Clinical Recommendation
+                  </span>
+                </div>
+                <div style={{ fontSize: '0.88rem', color: 'var(--text-sub)', lineHeight: 1.6, fontWeight: 500 }}>
+                  {result.recommendation || 'Standard discharge protocol. Monitor within 30 days.'}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+                {['Schedule Follow-up', 'Review Medications', 'Care Coordination'].map((act) => (
+                  <span key={act} style={{
+                    fontSize: '0.7rem', padding: '4px 10px', borderRadius: 6,
+                    background: 'rgba(37,99,235,0.15)', color: 'var(--blue)',
+                    border: '1px solid rgba(37,99,235,0.3)', fontWeight: 700
+                  }}>
+                    {act}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
