@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 
 const links = [
   { to: '/executive',   label: 'Executive',      icon: '🏠' },
@@ -13,6 +14,8 @@ const links = [
 ];
 
 export default function Sidebar() {
+  const { theme, toggleTheme } = useTheme();
+
   return (
     <nav className="sidebar">
       {/* Top Brand Block */}
@@ -25,11 +28,11 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* Landing Page Home Shortcut Button */}
-      <div style={{ padding: '0 0.75rem', marginBottom: '0.75rem' }}>
+      {/* Landing Page & Theme Toggle Buttons */}
+      <div style={{ padding: '0.75rem 0.75rem 0', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <NavLink to="/" style={{ textDecoration: 'none' }}>
           <motion.div
-            whileHover={{ scale: 1.02, backgroundColor: 'rgba(59, 130, 246, 0.2)' }}
+            whileHover={{ scale: 1.02 }}
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -38,7 +41,7 @@ export default function Sidebar() {
               border: '1px solid rgba(59, 130, 246, 0.3)',
               borderRadius: '10px',
               padding: '0.55rem 0.85rem',
-              color: '#60a5fa',
+              color: 'var(--blue)',
               fontSize: '0.82rem',
               fontWeight: 700,
               cursor: 'pointer'
@@ -49,6 +52,42 @@ export default function Sidebar() {
             <span style={{ marginLeft: 'auto', fontSize: '0.75rem', opacity: 0.7 }}>➔</span>
           </motion.div>
         </NavLink>
+
+        {/* Theme Toggle Button */}
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={toggleTheme}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: '10px',
+            padding: '0.5rem 0.85rem',
+            color: 'var(--text)',
+            fontSize: '0.82rem',
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'all 0.2s ease'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span>{theme === 'dark' ? '🌙' : '☀️'}</span>
+            <span>{theme === 'dark' ? 'Dark Theme' : 'Light Theme'}</span>
+          </div>
+          <span style={{
+            fontSize: '0.65rem',
+            background: 'rgba(59, 130, 246, 0.2)',
+            color: 'var(--blue)',
+            padding: '2px 6px',
+            borderRadius: '6px',
+            fontWeight: 700
+          }}>
+            {theme.toUpperCase()}
+          </span>
+        </motion.button>
       </div>
 
       {/* Navigation Links */}

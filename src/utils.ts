@@ -1,15 +1,35 @@
 // Shared API base URL and fetch helpers
 export const API = import.meta.env.VITE_API_URL || '';
 
-
 export const apiFetch = async (endpoint: string, fallback: unknown) => {
-  try {
-    const res = await fetch(`${API}${endpoint}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
-  } catch {
-    return fallback;
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const urlsToTry = [
+    `${API}${cleanEndpoint}`,
+    `${API}/api${cleanEndpoint}`
+  ];
+
+  for (const url of urlsToTry) {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) continue;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data !== null && data !== undefined) return data;
+      }
+      const text = await res.text();
+      try {
+        const parsed = JSON.parse(text);
+        if (parsed !== null && parsed !== undefined) return parsed;
+      } catch {
+        continue;
+      }
+    } catch {
+      continue;
+    }
   }
+
+  return fallback;
 };
 
 // Chart tooltip style (reused everywhere)

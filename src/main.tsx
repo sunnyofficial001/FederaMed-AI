@@ -12,6 +12,7 @@ import MonitoringPage from './pages/MonitoringPage';
 import GovernancePage from './pages/GovernancePage';
 import PredictionPage from './pages/PredictionPage';
 import ArchitecturePage from './pages/ArchitecturePage';
+import { ThemeProvider } from './context/ThemeContext';
 import './index.css';
 
 const queryClient = new QueryClient({
@@ -37,24 +38,26 @@ function AppLayout() {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          {/* Standalone Full-Width Landing Page (No Sidebar!) */}
-          <Route path="/" element={<LandingPage />} />
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Standalone Full-Width Landing Page (No Sidebar!) */}
+            <Route path="/" element={<LandingPage />} />
 
-          {/* Main App Layout (With Left Sidebar!) */}
-          <Route element={<AppLayout />}>
-            <Route path="/executive" element={<ExecutivePage />} />
-            <Route path="/federated" element={<FederatedPage />} />
-            <Route path="/analytics" element={<AnalyticsPage />} />
-            <Route path="/explain" element={<ExplainabilityPage />} />
-            <Route path="/monitoring" element={<MonitoringPage />} />
-            <Route path="/governance" element={<GovernancePage />} />
-            <Route path="/predict" element={<PredictionPage />} />
-            <Route path="/architecture" element={<ArchitecturePage />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+            {/* Main App Layout (With Left Sidebar!) */}
+            <Route element={<AppLayout />}>
+              <Route path="/executive" element={<ExecutivePage />} />
+              <Route path="/federated" element={<FederatedPage />} />
+              <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/explain" element={<ExplainabilityPage />} />
+              <Route path="/monitoring" element={<MonitoringPage />} />
+              <Route path="/governance" element={<GovernancePage />} />
+              <Route path="/predict" element={<PredictionPage />} />
+              <Route path="/architecture" element={<ArchitecturePage />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </QueryClientProvider>
   </StrictMode>
 );

@@ -4,6 +4,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/(metrics|hospitals|privacy|model-info|predict|executive|analytics|fl/.*|explanations/.*|monitoring/.*|governance/.*|health)",
+      "destination": "/api/index.ts"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "/api/index.ts"
     },
