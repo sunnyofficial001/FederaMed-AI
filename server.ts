@@ -1082,11 +1082,56 @@ const handleFLRounds = (req: any, res: any) => {
     strategy: "FedProx + FedAvg",
     fedprox_mu: 0.1,
     rounds: [
-      { round: 1, global_accuracy: 0.7821, global_loss: 0.5234, clients_participated: 5 },
-      { round: 2, global_accuracy: 0.8234, global_loss: 0.4312, clients_participated: 5 },
-      { round: 3, global_accuracy: 0.8512, global_loss: 0.3721, clients_participated: 5 },
-      { round: 4, global_accuracy: 0.8721, global_loss: 0.3123, clients_participated: 5 },
-      { round: 5, global_accuracy: 0.8890, global_loss: 0.2634, clients_participated: 5 },
+      {
+        round: 1, global_accuracy: 0.7821, global_loss: 0.5234, clients_participated: 5,
+        hospital_metrics: {
+          Hospital_A: { accuracy: 0.7612, loss: 0.5891, samples: 20353 },
+          Hospital_B: { accuracy: 0.7743, loss: 0.5412, samples: 20353 },
+          Hospital_C: { accuracy: 0.8012, loss: 0.4923, samples: 20353 },
+          Hospital_D: { accuracy: 0.7934, loss: 0.5102, samples: 20352 },
+          Hospital_E: { accuracy: 0.7814, loss: 0.5243, samples: 20352 },
+        }
+      },
+      {
+        round: 2, global_accuracy: 0.8234, global_loss: 0.4312, clients_participated: 5,
+        hospital_metrics: {
+          Hospital_A: { accuracy: 0.8124, loss: 0.4521, samples: 20353 },
+          Hospital_B: { accuracy: 0.8245, loss: 0.4234, samples: 20353 },
+          Hospital_C: { accuracy: 0.8367, loss: 0.4023, samples: 20353 },
+          Hospital_D: { accuracy: 0.8212, loss: 0.4412, samples: 20352 },
+          Hospital_E: { accuracy: 0.8203, loss: 0.4378, samples: 20352 },
+        }
+      },
+      {
+        round: 3, global_accuracy: 0.8512, global_loss: 0.3721, clients_participated: 5,
+        hospital_metrics: {
+          Hospital_A: { accuracy: 0.8423, loss: 0.3912, samples: 20353 },
+          Hospital_B: { accuracy: 0.8534, loss: 0.3612, samples: 20353 },
+          Hospital_C: { accuracy: 0.8645, loss: 0.3423, samples: 20353 },
+          Hospital_D: { accuracy: 0.8467, loss: 0.3712, samples: 20352 },
+          Hospital_E: { accuracy: 0.8491, loss: 0.3648, samples: 20352 },
+        }
+      },
+      {
+        round: 4, global_accuracy: 0.8721, global_loss: 0.3123, clients_participated: 5,
+        hospital_metrics: {
+          Hospital_A: { accuracy: 0.8634, loss: 0.3312, samples: 20353 },
+          Hospital_B: { accuracy: 0.8745, loss: 0.3012, samples: 20353 },
+          Hospital_C: { accuracy: 0.8834, loss: 0.2923, samples: 20353 },
+          Hospital_D: { accuracy: 0.8689, loss: 0.3112, samples: 20352 },
+          Hospital_E: { accuracy: 0.8703, loss: 0.3057, samples: 20352 },
+        }
+      },
+      {
+        round: 5, global_accuracy: 0.8890, global_loss: 0.2634, clients_participated: 5,
+        hospital_metrics: {
+          Hospital_A: { accuracy: 0.8823, loss: 0.2812, samples: 20353 },
+          Hospital_B: { accuracy: 0.8912, loss: 0.2534, samples: 20353 },
+          Hospital_C: { accuracy: 0.8967, loss: 0.2412, samples: 20353 },
+          Hospital_D: { accuracy: 0.8856, loss: 0.2681, samples: 20352 },
+          Hospital_E: { accuracy: 0.8890, loss: 0.2631, samples: 20352 },
+        }
+      },
     ],
     convergence: { initial_accuracy: 0.7821, final_accuracy: 0.8890, improvement: 0.1069, converged: true }
   });
@@ -1106,27 +1151,72 @@ const handleShap = (req: any, res: any) => {
       { feature: "number_diagnoses", importance: 0.0987, description: "Total diagnoses count" },
       { feature: "num_lab_procedures", importance: 0.0821, description: "Lab procedures performed" },
       { feature: "number_emergency", importance: 0.0712, description: "Emergency visits in prior year" },
-    ]
+      { feature: "number_outpatient", importance: 0.0534, description: "Outpatient visits" },
+      { feature: "num_procedures", importance: 0.0456, description: "Procedures performed" },
+      { feature: "age", importance: 0.0421, description: "Patient age group (midpoint)" },
+      { feature: "admission_type_id", importance: 0.0345, description: "Admission type classification" },
+      { feature: "insulin_Steady", importance: 0.0289, description: "Insulin dose unchanged" },
+      { feature: "insulin_Up", importance: 0.0234, description: "Insulin dose increased" },
+      { feature: "A1Cresult_None", importance: 0.0198, description: "No A1C test performed" },
+      { feature: "diag_1_428", importance: 0.0167, description: "Primary diagnosis: Heart Failure" },
+    ],
+    waterfall_example: {
+      patient_profile: { age: 75, time_in_hospital: 7, num_medications: 22, number_inpatient: 2, number_diagnoses: 9 },
+      base_value: 0.112,
+      predicted_probability: 0.387,
+      contributions: [
+        { feature: "number_inpatient=2", contribution: 0.142, direction: "positive" },
+        { feature: "num_medications=22", contribution: 0.098, direction: "positive" },
+        { feature: "time_in_hospital=7", contribution: 0.073, direction: "positive" },
+        { feature: "number_diagnoses=9", contribution: 0.058, direction: "positive" },
+        { feature: "discharge_disposition_id=1", contribution: -0.063, direction: "negative" },
+        { feature: "num_lab_procedures=62", contribution: 0.041, direction: "positive" },
+        { feature: "number_emergency=0", contribution: -0.034, direction: "negative" }
+      ]
+    }
   });
 };
 app.get("/explanations/shap", handleShap);
 app.get("/api/explanations/shap", handleShap);
 
 const handleDrift = (req: any, res: any) => {
+  const feature_drift = [
+    { feature: "time_in_hospital", drift_score: 0.031, status: "stable", p_value: 0.412 },
+    { feature: "num_medications", drift_score: 0.028, status: "stable", p_value: 0.534 },
+    { feature: "number_diagnoses", drift_score: 0.019, status: "stable", p_value: 0.701 },
+    { feature: "number_inpatient", drift_score: 0.044, status: "stable", p_value: 0.289 },
+    { feature: "num_lab_procedures", drift_score: 0.037, status: "stable", p_value: 0.356 },
+    { feature: "number_emergency", drift_score: 0.052, status: "watch", p_value: 0.198 },
+    { feature: "num_procedures", drift_score: 0.026, status: "stable", p_value: 0.589 },
+    { feature: "admission_type_id", drift_score: 0.063, status: "watch", p_value: 0.142 },
+    { feature: "discharge_disposition_id", drift_score: 0.018, status: "stable", p_value: 0.745 },
+    { feature: "age", drift_score: 0.012, status: "stable", p_value: 0.891 },
+  ];
   res.json({
     overall_drift_detected: false,
     concept_drift_detected: false,
     overall_drift_score: 0.033,
     reference_dataset: "Hospital_A (20,353 records)",
     current_dataset: "Hospital_B (20,353 records)",
-    feature_drift: [
-      { feature: "time_in_hospital", drift_score: 0.031, status: "stable", p_value: 0.412 },
-      { feature: "num_medications", drift_score: 0.028, status: "stable", p_value: 0.534 },
-      { feature: "number_diagnoses", drift_score: 0.019, status: "stable", p_value: 0.701 },
-      { feature: "number_inpatient", drift_score: 0.044, status: "stable", p_value: 0.289 },
-      { feature: "num_lab_procedures", drift_score: 0.037, status: "stable", p_value: 0.356 },
-    ],
-    model_health: { prediction_stability: 0.962, accuracy_degradation: 0.002, calibration_score: 0.941, status: "healthy" }
+    features_analyzed: feature_drift.length,
+    drifted_features: feature_drift.filter(f => f.status === "drift").length,
+    watch_features: feature_drift.filter(f => f.status === "watch").length,
+    feature_drift,
+    model_health: {
+      prediction_stability: 0.962,
+      accuracy_degradation: 0.002,
+      calibration_score: 0.941,
+      status: "healthy"
+    },
+    trend: [
+      { date: "2026-06-14", drift_score: 0.021 },
+      { date: "2026-06-15", drift_score: 0.025 },
+      { date: "2026-06-16", drift_score: 0.019 },
+      { date: "2026-06-17", drift_score: 0.031 },
+      { date: "2026-06-18", drift_score: 0.028 },
+      { date: "2026-06-19", drift_score: 0.033 },
+      { date: "2026-06-20", drift_score: 0.033 },
+    ]
   });
 };
 app.get("/monitoring/drift", handleDrift);
