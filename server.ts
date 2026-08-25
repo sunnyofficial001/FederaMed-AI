@@ -890,9 +890,16 @@ async function bootstrapServer() {
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`[FederaMed Coordinator Cluster] Live and ingress-ready on Port 3000.`);
-  });
+  if (process.env.VERCEL !== "1") {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`[FederaMed Coordinator Cluster] Live and ingress-ready on Port 3000.`);
+    });
+  }
 }
 
-bootstrapServer();
+if (process.env.VERCEL !== "1") {
+  bootstrapServer();
+}
+
+export default app;
+

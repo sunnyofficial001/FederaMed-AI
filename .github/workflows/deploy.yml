@@ -1,0 +1,33 @@
+name: FederaMed AI CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build-and-verify:
+    name: Build & Verify Production Bundle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Verify TypeScript & Linting
+        run: npm run lint
+
+      - name: Compile Production Assets
+        run: npm run build
+
+      - name: Verify Output Directory
+        run: test -d dist && test -f dist/index.html

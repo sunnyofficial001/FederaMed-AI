@@ -6,13 +6,15 @@
 
 *Privacy-Preserving Hospital Readmission Prediction using Federated Learning, Differential Privacy, Explainable AI, and MLOps.*
 
+[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-FederaMed_AI-00C7B7?style=for-the-badge&logo=vercel&logoColor=white)](https://federamed-ai.vercel.app)
+[![Docker Deployment](https://img.shields.io/badge/🐳_Docker-Containerized-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://hub.docker.com)
 [![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![React 19](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Flower](https://img.shields.io/badge/Flower_FL-FFA500?style=for-the-badge&logo=flower)](https://flower.dev/)
 [![MLflow](https://img.shields.io/badge/MLflow-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)](https://mlflow.org/)
 [![XGBoost](https://img.shields.io/badge/XGBoost-150458?style=for-the-badge&logo=xgboost)](https://xgboost.readthedocs.io/)
-[![Python 3.12](https://img.shields.io/badge/Python_3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Python 3.11](https://img.shields.io/badge/Python_3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ![FederaMed AI Executive Dashboard](assets/screenshots/executive.png)
@@ -20,6 +22,28 @@
 </div>
 
 ---
+
+## 🌐 Live Production Deployment
+
+**FederaMed AI** is engineered for continuous deployment across global edge networks and enterprise container clusters:
+
+| Component | Platform | Status | Live Endpoint |
+| :--- | :--- | :--- | :--- |
+| **Global Web & API Server** | Vercel Edge Serverless | ![Vercel](https://img.shields.io/badge/Status-Online-00C7B7?style=flat-square&logo=vercel) | [**federamed-ai.vercel.app**](https://federamed-ai.vercel.app) |
+| **Docker Microservices** | Render / Railway / GKE | ![Docker](https://img.shields.io/badge/Container-Production_Ready-2496ED?style=flat-square&logo=docker) | [Deployment Architecture Guide](DeploymentGuide.md) |
+| **Automated CI/CD** | GitHub Actions Pipeline | ![CI/CD](https://img.shields.io/badge/CI%2FCD-Passing-2088FF?style=flat-square&logo=github-actions) | [Workflow Execution Logs](https://github.com/sunnyofficial001/FederaMed-AI/actions) |
+
+### Environment Setup (`federamed_ai`)
+```bash
+# Activate the dedicated Conda environment
+conda activate federamed_ai
+
+# Install dependencies and build production artifacts
+npm install
+npm run build
+python -m pip install -r requirements.txt
+```
+
 
 ## 🌍 Why This Project Matters
 
@@ -53,9 +77,9 @@ By combining this with **Differential Privacy**, **MLOps Governance**, and **Exp
 | Dashboard | Preview |
 | :--- | :--- |
 | **Executive Summary** | <img src="assets/screenshots/executive.png" width="400"/> |
-| **FL Command Center** | <img src="assets/screenshots/fl_command.png" width="400"/> |
+| **FL Command Center** | <img src="assets/screenshots/fl_command_center.png" width="400"/> |
 | **Clinical Analytics** | <img src="assets/screenshots/analytics.png" width="400"/> |
-| **Explainability Center** | <img src="assets/screenshots/explainability.png" width="400"/> |
+| **Explainability Center** | <img src="assets/screenshots/explainability_xai.png" width="400"/> |
 | **Data Drift Monitoring** | <img src="assets/screenshots/monitoring.png" width="400"/> |
 | **AI Governance** | <img src="assets/screenshots/governance.png" width="400"/> |
 | **Clinical Support (Predict)** | <img src="assets/screenshots/predict.png" width="400"/> |
