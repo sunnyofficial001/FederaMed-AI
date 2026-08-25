@@ -1,8 +1,9 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const links = [
-  { to: '/',            label: 'Executive',      icon: '🏠' },
+  { to: '/',            label: 'Home',           icon: '✨' },
+  { to: '/executive',   label: 'Executive',      icon: '🏠' },
   { to: '/federated',   label: 'FL Command',     icon: '🌐' },
   { to: '/analytics',   label: 'Healthcare AI',  icon: '🏥' },
   { to: '/explain',     label: 'Explainability', icon: '🔍' },
